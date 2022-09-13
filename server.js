@@ -30,7 +30,7 @@ app.get("/api/movies",(req,res)=>{
     db.getAllMovies(req.body.page, req.body.perPage, req.body.title).then(()=>{
         res.json(req.body);
     }).catch((err)=>{
-      res.status(500).send("Unable to add");
+      res.status(500).send("can't add");
     });
 });
 
