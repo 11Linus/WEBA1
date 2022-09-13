@@ -83,7 +83,7 @@ app.delete("/api/movies/:id",(req,res)=>{
     }
 });
 
-var HTTP_PORT = process.env.PORT || 8080;
+const HTTP_PORT = process.env.PORT || 8080;
 
 db.initialize(process.env.MONGODB_CONN_STRING).then(()=>{
     app.listen(HTTP_PORT, ()=>{
