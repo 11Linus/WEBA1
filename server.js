@@ -88,9 +88,9 @@ app.delete("/api/movies/:id",(req,res)=>{
 const HTTP_PORT = process.env.PORT || 8080;
 
 //process.env.MONGODB_CONN_STRING
-var connectionString = "mongodb+srv://dbUser:Linus1234@senecaweb.3qtlrcl.mongodb.net/sample_mflix?retryWrites=true&w=majority";
-console.log(connectionString);
-db.initialize(connectionString).then(()=>{
+//var connectionString = "mongodb+srv://dbUser:Linus1234@senecaweb.3qtlrcl.mongodb.net/sample_mflix?retryWrites=true&w=majority";
+//console.log(connectionString);
+db.initialize(process.env.MONGODB_CONN_STRING).then(()=>{
     app.listen(HTTP_PORT, ()=>{
         console.log(`server listening on: ${HTTP_PORT}`);
     });
