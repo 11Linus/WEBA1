@@ -1,7 +1,9 @@
+require('dotenv').config(); 
+
 const exp = require("express");
 const app = exp();
 const cors = require("cors");
-require('dotenv').config(); 
+
 const MoviesDB = require("./modules/moviesDB.js");
 const db = new MoviesDB();
 
