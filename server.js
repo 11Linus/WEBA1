@@ -1,3 +1,14 @@
+/*********************************************************************************
+*  WEB422 – Assignment 1
+*  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  
+*  No part of this assignment has been copied manually or electronically from any other source
+*  (including web sites) or distributed to other students.
+* 
+*  Name: Kin Lok Chan Student ID: 119293215 Date: 9/13/2022
+*  Cyclic Link: https://dizzy-dove-peplum.cyclic.app
+*
+********************************************************************************/ 
+
 require('dotenv').config(); 
 
 const exp = require("express");
