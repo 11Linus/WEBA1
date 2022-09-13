@@ -8,7 +8,7 @@ const db = new MoviesDB();
 
 
 
-app.use(express.json())
+app.use(exp.json())
 app.use(cors());
 
 
@@ -84,8 +84,6 @@ app.delete("/api/movies/:id",(req,res)=>{
 });
 
 var HTTP_PORT = process.env.PORT || 8080;
-
-var MONGODB_CONN_STRING = "mongodb+srv://dbUser:Linus1234@senecaweb.3qtlrcl.mongodb.net/sample_mflix?retryWrites=true&w=majority";
 
 db.initialize(process.env.MONGODB_CONN_STRING).then(()=>{
     app.listen(HTTP_PORT, ()=>{
