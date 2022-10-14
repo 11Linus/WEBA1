@@ -9,92 +9,95 @@
 *
 ********************************************************************************/ 
 
-const express = require('express');
-const app = express();
-
+const express = require("express");
 const cors = require("cors");
-require('dotenv').config();
-
-
-const MoviesDB = require("./modules/moviesDB.js");
-const db = new MoviesDB();
-
-const HTTP_PORT = process.env.PORT || 8080;
-
+const config = require('dotenv').config();
+let HTTP_PORT = process.env.PORT || 8080;
+const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req, res) => {
-  // res.json({message: "API listening"});
-  res.send(`
-        <h2>Movies API</h2>
-        <p>WEB422 Assignment 1 - 2227</p>
-        <ul>
-          <li>GetAll: 
-            <ul><li><a href='/api/movies?page=1&perPage=5'>/api/movies?page=1&perPage=5</a></li>
-                <li><a href='/api/movies?page=1&perPage=5&title=The Avengers'>/api/movies?page=1&perPage=5&title=The Avengers</a></li>
-            </ul></li>
-          <li>GetOne: <ul><li><a href='/api/movies/573a13a3f29313caabd0d5a4'>/api/movies/573a13a3f29313caabd0d5a4</a></li></ul> </li></ul>
-        <p>URL on Cyclic</p>
-        <ul><li><a href='https://gleaming-jade-newt.cyclic.app/'>https://gleaming-jade-newt.cyclic.app/</a></li></ul>`
-    );
+const MoviesDB = require("./modules/moviesDB");
+const db = new MoviesDB();
 
+app.post("/api/movies", async (req, res) => {
+    try {
+        const data = req.body;
+        const newMovie = await db.addNewMovie(data);
+        if (!newMovie) throw new Error("Could not add movie");
+        res.json(newMovie);
+    } catch (err) {
+        console.log("post /api/movies", err);
+        res.status(500).json({});
+    }
 });
 
-app.post("/api/movies", (req,res) => {
-  db.addNewMovie(req.body)
-      .then((movie) => {
-          res.status(201).json(movie);
-      }).catch((err) => {
-          res.status(500).json({message: `an error occurred: ${err}`});
-      });
+app.get("/api/movies", async (req, res) => {
+    try {
+        const page = req.query.page ?? 1;
+        const perPage = req.query.perPage ?? 5;
+        const title = req.query.title ?? undefined;
+        const movies = await db.getAllMovies(page, perPage, title);
+        res.json(movies);
+    } catch (err) {
+        console.log("get /api/movies", err);
+        res.status(500).json([]);
+    }
 });
 
-app.get("/api/movies", (req, res) => {
-  const { page, perPage, title } = req.query;
+app.get("/api/movies/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+        const movie = await db.getMovieById(id);
+        if (!movie) throw new Error("Could not get movie");
+        res.json(movie);
+    } catch (err) {
+        console.log("get /api/movies/:id", req.params.id, err);
+        res.status(500).json({});
+    }
+});
 
-  db.getAllMovies(page, perPage, title)
-    .then(data => {
-      res.json(data);
-    }).catch((err) => {
-      res.status(500).json({ message: `an error occurred: ${err}` });
+app.put("/api/movies/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+        const data = req.body;
+        const updatedMovie = await db.updateMovieById(id, data);
+        if (!updatedMovie) throw new Error("Could not update movie");
+        res.json({
+            success: true,
+            data: updatedMovie,
+        });
+    } catch (err) {
+        console.log("put /api/movies/:id", req.params.id, err);
+        res.status(500).json({ success: false, message: "Could not update movie" });
+    }
+});
+
+app.delete('/api/movies/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const result = await db.deleteMovieById(id);
+
+        if (!result || !result.acknowledged) throw new Error("Could not delete movie");
+        if (!result.deletedCount == 0) {
+            res.json({ success: true, message: `Movie ${id} not exist` });
+        } else {
+            res.json({ success: true, message: `Movie ${id} deleted` });
+        }
+    } catch (err) {
+        console.log("delete /api/movies/:id", req.params.id, err);
+        res.status(500).json({ success: false, message: "Could not delete movie" });
+    }
+});
+
+app.get("/", function (req, res) {
+    res.json({ message: "API Listening" });
+});
+
+db.initialize(`mongodb+srv://dbUser:Linus1234@senecaweb.3qtlrcl.mongodb.net/sample_mflix?retryWrites=true&w=majority`).then(() => {
+    app.listen(HTTP_PORT, () => {
+        console.log(`server listening on: ${HTTP_PORT}`);
     });
-}
-);
-
-app.get("/api/movies/:id",(req,res) => {
-  db.getMovieById(req.params.id)
-      .then(data => {
-          res.json(data);
-      }).catch((err)=>{
-          res.status(500).json({message: `an error occurred: ${err}`});
-      });
-});
-
-app.put("/api/movies/:id", (req,res) => {
-  const id = req.params.id;
-
-  db.updateMovieById(req.body, id)
-      .then(() => {
-          res.json({message: `movie ${id} successfully updated`});
-      }).catch((err)=>{
-          res.status(500).json({message: `an error occurred: ${err}`});
-      });
-});
-
-app.delete("/api/movies/:id", (req,res)=>{
-  db.deleteMovieById(req.params.id)
-      .then(() => {
-          res.status(204).end();
-      }).catch((err)=>{
-          res.status(500).json({message: `an error occurred: ${err}`});
-      });
-});
-
-db.initialize(process.env.MONGODB_CONN_STRING).then(()=>{
-  app.listen(HTTP_PORT, ()=>{
-      console.log(`server listening on: ${HTTP_PORT}`);
-  });
 }).catch((err) => {
-  console.error(err);
+    console.log(err);
 });
