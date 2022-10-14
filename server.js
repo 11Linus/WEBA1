@@ -91,7 +91,7 @@ app.delete('/api/movies/:id', async (req, res) => {
 });
 
 app.get("/", function (req, res) {
-    res.json({ message: "API Listening" });
+    res.json({ message: "API is now Listening" });
 });
 
 db.initialize(`mongodb+srv://dbUser:Linus1234@senecaweb.3qtlrcl.mongodb.net/sample_mflix?retryWrites=true&w=majority`).then(() => {
